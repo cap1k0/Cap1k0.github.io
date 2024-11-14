@@ -1,12 +1,61 @@
-let randomNumber = Math.floor(Math.random() * 10) + 1;
+let score = 0;
+let gameStarted = false;
 
-function checkGuess() {
-    const guess = parseInt(document.getElementById("guessInput").value);
-    const resultElement = document.getElementById("result");
-
-    if (guess === randomNumber) {
-        resultElement.innerText = "تبریک! درست حدس زدی!";
+function startGame() {
+    if (!gameStarted) {
+        gameStarted = true;
+        document.getElementById('start-btn').innerText = 'توقف بازی';
+        startObstacleMovement();
     } else {
-        resultElement.innerText = "اشتباه بود، دوباره تلاش کن!";
+        gameStarted = false;
+        document.getElementById('start-btn').innerText = 'شروع بازی';
+        stopObstacleMovement();
     }
+}
+
+function startObstacleMovement() {
+    const obstacle = document.getElementById('obstacle');
+    let obstaclePosition = 400; // Starting position of the obstacle
+
+    const moveObstacleInterval = setInterval(() => {
+        if (!gameStarted) {
+            clearInterval(moveObstacleInterval);
+            return;
+        }
+
+        obstaclePosition -= 5;
+        obstacle.style.right = obstaclePosition + 'px';
+
+        // Check collision with player
+        if (obstaclePosition < 100 && obstaclePosition > 50 && isCollision()) {
+            alert('بازی تمام شد! امتیاز شما: ' + score);
+            resetGame();
+        }
+
+        // Increase score over time
+        score++;
+        document.getElementById('score').innerText = 'امتیاز: ' + score;
+    }, 100);
+}
+
+function stopObstacleMovement() {
+    const obstacle = document.getElementById('obstacle');
+    obstacle.style.animation = 'none'; // Stop the obstacle movement
+}
+
+function isCollision() {
+    const player = document.getElementById('player');
+    const obstacle = document.getElementById('obstacle');
+    const playerRect = player.getBoundingClientRect();
+    const obstacleRect = obstacle.getBoundingClientRect();
+
+    return !(playerRect.top > obstacleRect.bottom || playerRect.bottom < obstacleRect.top || playerRect.left > obstacleRect.right || playerRect.right < obstacleRect.left);
+}
+
+function resetGame() {
+    score = 0;
+    document.getElementById('score').innerText = 'امتیاز: ' + score;
+    gameStarted = false;
+    document.getElementById('start-btn').innerText = 'شروع بازی';
+    document.getElementById('obstacle').style.right = '-50px';
 }
